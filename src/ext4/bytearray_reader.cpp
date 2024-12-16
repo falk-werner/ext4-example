@@ -60,5 +60,15 @@ uint16_t bytearray_reader::u16(size_t offset) const
     return (high << 8) | low;
 }
 
+std::string bytearray_reader::str(size_t offset, size_t length) const
+{
+    if ((offset + length) >= m_size)
+    {
+        throw std::range_error("index out of bounds");
+    }
+
+    return std::string(reinterpret_cast<char const*>(&m_data[offset]), length);
+}
+
 
 }

@@ -14,6 +14,7 @@ public:
     bytearray_reader(uint8_t const * data, size_t size);
     uint32_t u32(size_t offset) const;
     uint16_t u16(size_t offset) const;
+    std::string str(size_t offset, size_t length) const;
 
     static bytearray_reader from_stream(std::ifstream & stream, uint8_t * data, size_t offset, size_t size);
 

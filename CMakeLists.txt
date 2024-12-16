@@ -13,6 +13,7 @@ add_library(ext4 STATIC
     src/ext4/bytearray_reader.cpp
     src/ext4/blockgroup_descriptor.cpp
     src/ext4/inode.cpp
+    src/ext4/block.cpp
 )
 target_include_directories(ext4 PUBLIC include)
 target_include_directories(ext4 PRIVATE src)
