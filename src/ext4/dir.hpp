@@ -16,10 +16,10 @@ class dir: public dir_i
 public:
     dir(std::shared_ptr<core_i> core, uint32_t inode_id);
     ~dir() override = default;
-    bool get_next(dir_entry & out) override;
+    void scan(dir_entry_visitor visitor) override;
 private:
     std::shared_ptr<core_i> m_core;
-    inode ino;
+    uint32_t m_inode_id;
 };
 
 }

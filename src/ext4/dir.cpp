@@ -10,13 +10,21 @@ namespace ext4
 
 dir::dir(std::shared_ptr<core_i> core, uint32_t inode_id)
 : m_core(core)
+, m_inode_id(inode_id)
 {
-    if (!m_core->lookup(inode_id, ino))
+
+}
+
+void dir::scan(dir_entry_visitor visitor)
+{
+    inode ino;
+    if (!m_core->lookup(m_inode_id, ino))
     {
         throw std::runtime_error("invalid dir inode");
     }
 
-    m_core->foreach_block(ino, [](uint8_t const * block, size_t size){
+    m_core->foreach_block(ino, [&visitor](uint8_t const * block, size_t size){
+        bool continue_ = true;
         bytearray_reader reader(block, size);
         size_t offset = 0;
 
@@ -28,23 +36,20 @@ dir::dir(std::shared_ptr<core_i> core, uint32_t inode_id)
             if (inode_id != 0)
             {
                 uint8_t name_length = block[offset + 6];
-                uint8_t type = block[offset + 7];
-                std::string name = reader.str(offset + 8, name_length);
 
-                std::cout << name << std::endl;
+                dir_entry entry;
+                entry.inode = inode_id;
+                entry.type = file_type::unknown; // block[offset + 7];
+                entry.name = reader.str(offset + 8, name_length);
+
+                continue_ = visitor(entry);
             }
 
             offset += record_size;
         }
 
-        return true;
+        return continue_;
     });
-
-}
-
-bool dir::get_next(dir_entry & out)
-{
-    return false;
 }
 
 }

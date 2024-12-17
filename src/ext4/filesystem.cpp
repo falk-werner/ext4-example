@@ -18,4 +18,31 @@ std::unique_ptr<dir_i> filesystem::get_root()
     return std::move(root_dir);
 }
 
+bool filesystem::get_fileinfo(uint32_t inode_id, fileinfo & out)
+{
+    inode ino;
+    if (!m_core->lookup(inode_id, ino))
+    {
+        return false;
+    }
+
+    out.inode_id = inode_id;
+    out.mode = ino.mode;
+    out.uid = ino.uid;
+    out.gid = ino.gid;
+    out.size = ino.size;
+
+    // ToDo
+    out.atime.tv_sec = 0;
+    out.atime.tv_nsec = 0;
+    out.ctime.tv_sec = 0;
+    out.ctime.tv_nsec = 0;
+    out.mtime.tv_sec = 0;
+    out.mtime.tv_nsec = 0;
+    out.link_count = 0;
+    out.generation = 0;
+
+    return true;
+}
+
 }

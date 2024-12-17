@@ -2,6 +2,7 @@
 #include "ext4/bytearray_reader.hpp"
 
 #include <algorithm>
+#include <iostream>
 
 namespace
 {
@@ -25,11 +26,11 @@ constexpr uint32_t const ion_flag_extents = 0x80000;
 namespace ext4
 {
 
-void inode::read(std::ifstream & stream, uint64_t offset, uint16_t size)
+void inode::read(std::ifstream & stream, uint64_t offset, uint16_t ino_size)
 {
     uint8_t buffer[ino_max_size];
-    size_t const ino_size = std::min(static_cast<size_t>(size), ino_max_size);
-    auto reader = bytearray_reader::from_stream(stream, buffer, offset, ino_size);
+    size_t const real_ino_size = std::min(static_cast<size_t>(ino_size), ino_max_size);
+    auto reader = bytearray_reader::from_stream(stream, buffer, offset, real_ino_size);
 
     mode = reader.u16(ino_mode_offset);
     uid = reader.u16(ino_uid_offset);
@@ -56,6 +57,12 @@ void inode::read(std::ifstream & stream, uint64_t offset, uint16_t size)
         singly_indirect_blockpointers = 0;
         doubly_indirect_blockpointers = 0;
         triply_indirect_blockpointers = 0;
+
+        std::cout << "eh_magic     : " << std::hex << reader.u16(ino_direct_blockpointers_offset) << std::dec << std::endl;
+        std::cout << "eh_entries   : " << std::hex << reader.u16(ino_direct_blockpointers_offset + 2) << std::dec << std::endl;
+        std::cout << "eh_max       : " << std::hex << reader.u16(ino_direct_blockpointers_offset + 4) << std::dec << std::endl;
+        std::cout << "eh_depth     : " << std::hex << reader.u16(ino_direct_blockpointers_offset + 6) << std::dec << std::endl;
+        std::cout << "eh_generation: " << std::hex << reader.u32(ino_direct_blockpointers_offset + 8) << std::dec << std::endl;
     }
 }
 

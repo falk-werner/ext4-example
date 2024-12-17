@@ -22,7 +22,7 @@ struct inode
     uint32_t doubly_indirect_blockpointers;
     uint32_t triply_indirect_blockpointers;
 
-    void read(std::ifstream & stream, uint64_t offset, uint16_t size);
+    void read(std::ifstream & stream, uint64_t offset, uint16_t ino_size);
 };
 
 }
