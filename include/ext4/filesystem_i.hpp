@@ -3,6 +3,7 @@
 
 #include <ext4/dir_entry.hpp>
 #include <ext4/fileinfo.hpp>
+#include <ext4/fsinfo.hpp>
 
 #include <memory>
 #include <functional>
@@ -18,6 +19,7 @@ class filesystem_i
 {
 public:
     virtual ~filesystem_i() = default;
+    virtual void get_info(fsinfo & out) = 0;
     virtual void scan_directory(uint32_t inode_id, dir_entry_visitor visitor) = 0;
     virtual bool get_fileinfo(uint32_t inode_id, fileinfo & out) = 0;
 };

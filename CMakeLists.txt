@@ -21,6 +21,10 @@ target_include_directories(ext4 PRIVATE src)
 add_executable(ext4-ls src/app/ext4_ls.cpp)
 target_link_libraries(ext4-ls PRIVATE ext4)
 
+add_executable(ext4-info src/app/ext4_info.cpp)
+target_link_libraries(ext4-info PRIVATE ext4)
+
+
 if(NOT(WITHOUT_TEST))
 enable_testing()
 include(CTest)

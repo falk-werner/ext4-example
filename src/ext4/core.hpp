@@ -17,6 +17,7 @@ class core: public core_i
 public:
     core(std::filesystem::path const & path);
     ~core() override = default;
+    void get_info(fsinfo & out) override;
     bool lookup(uint32_t inode_id, inode & out) override;
     void foreach_block(inode const & inode, block_visitor visitor) override;
 

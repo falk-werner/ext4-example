@@ -12,6 +12,12 @@ filesystem::filesystem(std::shared_ptr<core_i> core)
 
 }
 
+void filesystem::get_info(fsinfo & out)
+{
+    m_core->get_info(out);
+}
+
+
 void filesystem::scan_directory(uint32_t inode_id, dir_entry_visitor visitor)
 {
     inode ino;

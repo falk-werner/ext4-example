@@ -13,6 +13,29 @@ core::core(std::filesystem::path const & path)
     m_block = std::make_unique<block>(sb.block_size);
 }
 
+void core::get_info(fsinfo & out)
+{
+    out.total_inodes = sb.total_inodes;
+    out.total_blocks = sb.total_blocks;
+    out.reserved_blocks = sb.reserved_blocks;
+    out.free_blocks = sb.free_blocks;
+    out.free_inodes = sb.free_inodes;
+    out.first_data_block = sb.first_data_block;
+    out.block_size = sb.block_size;
+    out.blocks_per_group = sb.blocks_per_group;
+    out.inodes_per_group = sb.inodes_per_group;
+    out.state = sb.state;
+    out.errors = sb.errors;
+    out.minor_revision = sb.minor_revision;
+    out.creator_os = sb.creator_os;
+    out.revision = sb.revision;
+    out.first_ino = sb.first_ino;
+    out.inode_size = sb.inode_size;
+    out.feature_compatible = sb.feature_compat;
+    out.feature_incompatible = sb.feature_incompat;
+    out.feature_ro_compatible = sb.feature_ro_compat;
+    out.blockgroup_descriptor_size = sb.bg_descriptor_size;
+}
 
 bool core::lookup(uint32_t inode_id, inode & out)
 {
