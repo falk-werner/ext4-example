@@ -14,7 +14,7 @@ class filesystem: public filesystem_i
 public:
     filesystem(std::shared_ptr<core_i> core);
     ~filesystem() override = default;
-    std::unique_ptr<dir_i> get_root() override;
+    void scan_directory(uint32_t inode_id, dir_entry_visitor visitor) override;
     bool get_fileinfo(uint32_t inode_id, fileinfo & out) override;
 
 private:

@@ -9,7 +9,6 @@ add_library(ext4 STATIC
     src/ext4/filesystem.cpp
     src/ext4/filesystems.cpp
     src/ext4/core.cpp
-    src/ext4/dir.cpp
     src/ext4/bytearray_reader.cpp
     src/ext4/blockgroup_descriptor.cpp
     src/ext4/inode.cpp

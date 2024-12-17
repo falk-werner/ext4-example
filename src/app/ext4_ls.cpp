@@ -66,51 +66,68 @@ char ls_ox(ext4::filemode mode)
     return mode.other_execute() ? 'x' : '-';
 }
 
+void print_entry(std::string const & name, ext4::fileinfo const & info)
+{
+    std::cout <<
+        std::setw(10) << info.inode_id << ' ' << 
+        ls_type(info.mode) <<
+        ls_ur(info.mode) <<
+        ls_uw(info.mode) <<
+        ls_ux(info.mode) <<
+        ls_gr(info.mode) <<
+        ls_gw(info.mode) <<
+        ls_gx(info.mode) <<
+        ls_or(info.mode) <<
+        ls_ow(info.mode) <<
+        ls_ox(info.mode) <<
+        ' ' <<
+        info.link_count << ' ' << 
+        info.uid << ' ' <<
+        info.gid << ' ' <<
+        std::setw(10) << info.size << ' ' <<
+        name <<
+        std::endl;
+}
 
 }
 
 int main(int argc, char* argv[])
 {
+    int exit_code = EXIT_SUCCESS;
+
     if (argc > 1)
     {
-        std::string const filename = argv[1];
-        auto fs = ext4::open(filename);
+        try
+        {
+            std::string const filename = argv[1];
+            auto fs = ext4::open(filename);
 
-        auto root_dir = fs->get_root();
-        root_dir->scan([&fs](auto const & entry) {
-            ext4::fileinfo info;
-            if (!fs->get_fileinfo(entry.inode, info)) {
-                std::cerr << "failed to lookup inode: " << entry.name << ": " << entry.inode << std::endl;                
-            }
+            fs->scan_directory(ext4::inode_id_root_directory, [&fs](auto const & entry) {
+                ext4::fileinfo info;
+                if (!fs->get_fileinfo(entry.inode, info)) {
+                    std::cerr << "failed to lookup inode: " << entry.name << ": " << entry.inode << std::endl;                
+                }
 
-            std::cout <<
-                std::setw(10) << info.inode_id << ' ' << 
-                ls_type(info.mode) <<
-                ls_ur(info.mode) <<
-                ls_uw(info.mode) <<
-                ls_ux(info.mode) <<
-                ls_gr(info.mode) <<
-                ls_gw(info.mode) <<
-                ls_gx(info.mode) <<
-                ls_or(info.mode) <<
-                ls_ow(info.mode) <<
-                ls_ox(info.mode) <<
-                ' ' <<
-                info.link_count << ' ' << 
-                info.uid << ' ' <<
-                info.gid << ' ' <<
-                std::setw(10) << info.size << ' ' <<
-                entry.name <<
-                std::endl;
+                print_entry(entry.name, info);
 
-            return true;
-        });
+                return true;
+            });
+        }
+        catch (std::runtime_error const & ex)
+        {
+            std::cerr << "error: " << ex.what() << std::endl;
+            exit_code = EXIT_FAILURE;
+        }
+        catch (...)
+        {
+            std::cerr << "error: fatal error" << std::endl;
+            exit_code = EXIT_FAILURE;
+        }
     }
     else
     {
         std::cout << "usage: ext4-ls <filename>" << std::endl;
-        return 1;
     }
 
-    return 0;
+    return exit_code;
 }
