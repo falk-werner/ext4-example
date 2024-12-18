@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.16)
 project(ext4-example)
 
 option(WITHOUT_TEST "Disable unit test" OFF)
+set(CMAKE_CXX_STANDARD 17)
 
 add_library(ext4 STATIC
     src/ext4/crc32.cpp
