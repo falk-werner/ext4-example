@@ -19,7 +19,7 @@ struct superblock
     uint64_t free_blocks;
     uint32_t free_inodes;
     uint32_t first_data_block;
-    uint64_t block_size;
+    uint32_t block_size;
     uint32_t blocks_per_group;
     uint32_t inodes_per_group;
     uint16_t state;

@@ -14,6 +14,7 @@ add_library(ext4 STATIC
     src/ext4/inode.cpp
     src/ext4/block.cpp
     src/ext4/filemode.cpp
+    src/ext4/block_iterator.cpp
 )
 target_include_directories(ext4 PUBLIC include)
 target_include_directories(ext4 PRIVATE src)

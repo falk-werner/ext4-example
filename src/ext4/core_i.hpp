@@ -3,6 +3,7 @@
 
 #include "ext4/inode.hpp"
 #include "ext4/fsinfo.hpp"
+#include "ext4/block.hpp"
 
 #include <cinttypes>
 #include <functional>
@@ -17,8 +18,11 @@ class core_i
 public:
     virtual ~core_i() = default;
     virtual void get_info(fsinfo & out) = 0;
+    virtual size_t get_blocksize() const = 0;
     virtual bool lookup(uint32_t inode_id, inode & out) = 0;
     virtual void foreach_block(inode const & inode, block_visitor visitor) = 0;
+    virtual bool read_block(uint64_t block_id, block & block) = 0;
+
 };
 
 }

@@ -1,5 +1,6 @@
 #include "ext4/core.hpp"
 #include "ext4/bytearray_reader.hpp"
+#include "ext4/block_iterator.hpp"
 
 #include <iostream>
 
@@ -10,7 +11,6 @@ core::core(std::filesystem::path const & path)
 : stream(path)
 {
     sb.parse(stream);
-    m_block = std::make_unique<block>(sb.block_size);
 }
 
 void core::get_info(fsinfo & out)
@@ -37,6 +37,11 @@ void core::get_info(fsinfo & out)
     out.blockgroup_descriptor_size = sb.bg_descriptor_size;
     out.uuid = sb.uuid;
     out.volume_name = sb.volume_name;
+}
+
+size_t core::get_blocksize() const
+{
+    return static_cast<size_t>(sb.block_size);
 }
 
 bool core::lookup(uint32_t inode_id, inode & out)
@@ -74,14 +79,11 @@ void core::get_blockgroup(uint32_t blockgroup_id, blockgroup_descriptor & out)
 
 void core::foreach_block(inode const & inode, block_visitor visitor)
 {
-    foreach_direct_block(inode, visitor) &&
-    foreach_indirect_block(inode.singly_indirect_blockpointers, visitor) &&
-    foreach_doubly_indirect_block(inode.doubly_indirect_blockpointers, visitor) &&
-    foreach_triply_indirect_block(inode.triply_indirect_blockpointers, visitor);
-
+    block_iterator it(*this);
+    it.foreach_block(inode, visitor);
 }
 
-bool core::read_block(uint64_t block_id)
+bool core::read_block(uint64_t block_id, block & block)
 {
     uint64_t const offset = block_id * sb.block_size;
     stream.seekg(offset);
@@ -90,111 +92,10 @@ bool core::read_block(uint64_t block_id)
         return false;
     }
 
-    stream.read(reinterpret_cast<char*>(m_block->data()), m_block->size());
+    stream.read(reinterpret_cast<char*>(block.data()), block.size());
     return stream.good();
 }
 
-bool core::visit_block(uint64_t block_id, block_visitor & visitor)
-{
-    if (block_id == 0) { return true; }
-
-    if (!read_block(block_id))
-    {
-        std::cerr << "error: core: failed to read block #" << block_id << std::endl;
-        return false;
-    }
-
-    try
-    {            
-        return visitor(m_block->data(), m_block->size());
-    }
-    catch (...)
-    {
-        std::cerr << "error: core: block visitor throws" << std::endl;
-        return false;
-    }
-}
-
-
-bool core::foreach_direct_block(inode const & inode, block_visitor & visitor)
-{
-    bool continue_ = true;
-    for(size_t i = 0; continue_ && (i < ino_direct_blockpointers_size); i++)
-    {
-        uint64_t const block_id = static_cast<uint64_t>(inode.direct_blockpointers[i]);
-        continue_ = visit_block(block_id, visitor);
-    }
-
-    return continue_;
-}
-
-bool core::foreach_indirect_block(uint32_t block_id, block_visitor & visitor)
-{
-    if (block_id == 0) { return true; }
-
-    if (!read_block(static_cast<uint64_t>(block_id)))
-    {
-        std::cout << "error: core: failed to read block #" << block_id << std::endl;
-        return false;
-    }
-
-    constexpr size_t const address_size = 4;
-    size_t const count = sb.block_size / address_size;
-    bytearray_reader reader(m_block->data(), m_block->size());
-    bool continue_ = true;
-    for(size_t i = 0; continue_ && (i < count); i++)
-    {
-        uint32_t const address = reader.u32(i * address_size);
-        continue_ = visit_block(address, visitor);
-    }
-
-    return continue_;
-}
-
-bool core::foreach_doubly_indirect_block(uint32_t block_id, block_visitor & visitor)
-{
-    if (block_id == 0) { return true; }
-
-    if (!read_block(static_cast<uint64_t>(block_id)))
-    {
-        std::cout << "error: core: failed to read block #" << block_id << std::endl;
-        return false;
-    }
-
-    constexpr size_t const address_size = 4;
-    size_t const count = sb.block_size / address_size;
-    bytearray_reader reader(m_block->data(), m_block->size());
-    bool continue_ = true;
-    for(size_t i = 0; continue_ && (i < count); i++)
-    {
-        uint32_t const address = reader.u32(i * address_size);
-        continue_ = foreach_indirect_block(address, visitor);
-    }
-
-    return continue_;
-}
-
-bool core::foreach_triply_indirect_block(uint32_t block_id, block_visitor & visitor)
-{    
-    if (block_id == 0) { return true; }
-
-    if (!read_block(static_cast<uint64_t>(block_id)))
-    {
-        std::cout << "error: core: failed to read block #" << block_id << std::endl;
-        return false;
-    }
-
-    constexpr size_t const address_size = 4;
-    size_t const count = sb.block_size / address_size;
-    bytearray_reader reader(m_block->data(), m_block->size());
-    bool continue_ = true;
-    for(size_t i = 0; continue_ && (i < count); i++)
-    {
-        uint32_t const address = reader.u32(i * address_size);
-        continue_ = foreach_doubly_indirect_block(address, visitor);
-    }
-    return continue_;
-}
 
 
 }

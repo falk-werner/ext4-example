@@ -1,5 +1,5 @@
 #ifndef EXT4_BLOCK_HPP
-#define EXP4_BLOCK_HPP
+#define EXT4_BLOCK_HPP
 
 #include <cstddef>
 #include <cinttypes>
