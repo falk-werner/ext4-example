@@ -18,10 +18,9 @@ public:
     core(std::filesystem::path const & path);
     ~core() override = default;
     void get_info(fsinfo & out) override;
-    size_t get_blocksize() const override;
     bool lookup(uint32_t inode_id, inode & out) override;
     void foreach_block(inode const & inode, block_visitor visitor) override;
-    bool read_block(uint64_t block_id, block & block) override;
+    std::optional<block> read_block(uint64_t block_id) override;
 
 private:
     void get_blockgroup(uint32_t blockgroup_id, blockgroup_descriptor & out);

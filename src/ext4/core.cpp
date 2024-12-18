@@ -1,6 +1,7 @@
 #include "ext4/core.hpp"
 #include "ext4/bytearray_reader.hpp"
 #include "ext4/block_iterator.hpp"
+#include "ext4/extent_iterator.hpp"
 
 #include <iostream>
 
@@ -39,11 +40,6 @@ void core::get_info(fsinfo & out)
     out.volume_name = sb.volume_name;
 }
 
-size_t core::get_blocksize() const
-{
-    return static_cast<size_t>(sb.block_size);
-}
-
 bool core::lookup(uint32_t inode_id, inode & out)
 {
     if ((inode_id == 0) || (inode_id > sb.total_inodes))
@@ -79,21 +75,39 @@ void core::get_blockgroup(uint32_t blockgroup_id, blockgroup_descriptor & out)
 
 void core::foreach_block(inode const & inode, block_visitor visitor)
 {
-    block_iterator it(*this);
-    it.foreach_block(inode, visitor);
+    if ((inode.flags & ino_flag_inline_data) != 0)
+    {
+        visitor(reinterpret_cast<uint8_t const *>(inode.block.data()), inode.block.size());
+    }
+    else if ((inode.flags & ino_flag_extents) != 0)
+    {
+        extent_iterator it(*this);
+        it.foreach_block(inode.block, visitor);
+    }
+    else
+    {
+        block_iterator it(*this);
+        it.foreach_block(inode, visitor);
+    }
 }
 
-bool core::read_block(uint64_t block_id, block & block)
+std::optional<block> core::read_block(uint64_t block_id)
 {
     uint64_t const offset = block_id * sb.block_size;
     stream.seekg(offset);
     if (!stream.good())
     {
-        return false;
+        return std::nullopt;
     }
 
+    block block(sb.block_size);
     stream.read(reinterpret_cast<char*>(block.data()), block.size());
-    return stream.good();
+    if (!stream.good())
+    {
+        return std::nullopt;
+    }
+
+    return std::move(block);
 }
 
 

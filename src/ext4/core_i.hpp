@@ -7,6 +7,7 @@
 
 #include <cinttypes>
 #include <functional>
+#include <optional>
 
 namespace ext4
 {
@@ -18,10 +19,9 @@ class core_i
 public:
     virtual ~core_i() = default;
     virtual void get_info(fsinfo & out) = 0;
-    virtual size_t get_blocksize() const = 0;
     virtual bool lookup(uint32_t inode_id, inode & out) = 0;
     virtual void foreach_block(inode const & inode, block_visitor visitor) = 0;
-    virtual bool read_block(uint64_t block_id, block & block) = 0;
+    virtual std::optional<block> read_block(uint64_t block_id) = 0;
 
 };
 

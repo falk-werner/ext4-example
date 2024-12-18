@@ -8,7 +8,8 @@
 namespace ext4
 {
 
-constexpr size_t const ino_direct_blockpointers_size = 12;
+constexpr uint32_t const ino_flag_extents     = 0x00080000;
+constexpr uint32_t const ino_flag_inline_data = 0x10000000;
 
 struct inode
 {
@@ -17,10 +18,8 @@ struct inode
     uint32_t gid;
     uint32_t size;
     uint32_t flags;
-    uint32_t direct_blockpointers[ino_direct_blockpointers_size];
-    uint32_t singly_indirect_blockpointers;
-    uint32_t doubly_indirect_blockpointers;
-    uint32_t triply_indirect_blockpointers;
+
+    std::string block;
 
     void read(std::ifstream & stream, uint64_t offset, uint16_t ino_size);
 };
