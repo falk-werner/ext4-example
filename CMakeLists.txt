@@ -5,7 +5,6 @@ option(WITHOUT_TEST "Disable unit test" OFF)
 set(CMAKE_CXX_STANDARD 17)
 
 add_library(ext4 STATIC
-    src/ext4/crc32.cpp
     src/ext4/superblock.cpp
     src/ext4/filesystem.cpp
     src/ext4/filesystems.cpp
@@ -34,7 +33,6 @@ find_package(GTest REQUIRED)
 include(GoogleTest)
 
 add_executable(alltests
-    test-src/test_crc32.cpp
     test-src/test_time.cpp
 )
 target_link_libraries(alltests PRIVATE ext4 GTest::gtest GTest::gtest_main)
