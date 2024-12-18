@@ -85,6 +85,8 @@ struct fsinfo
     uint32_t feature_compatible;
     uint32_t feature_incompatible;
     uint32_t feature_ro_compatible;
+    std::string uuid;
+    std::string volume_name;
 
     uint16_t blockgroup_descriptor_size;
 };

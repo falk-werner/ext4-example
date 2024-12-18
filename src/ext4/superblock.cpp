@@ -37,7 +37,11 @@ namespace
     constexpr const size_t sb_feature_compat_offset = 0x5C;
     constexpr const size_t sb_feature_incompat_offset = 0x60;
     constexpr const size_t sb_feature_ro_compat_offset = 0x64;
+    constexpr const size_t sb_uuid_offset = 0x068;
+    constexpr const size_t sb_volume_name_offset = 0x78;
 
+    constexpr const size_t sb_uuid_size = 16;
+    constexpr const size_t sb_volume_name_size = 16;
     constexpr const size_t superblock_size = 1024;
 }
 
@@ -68,6 +72,8 @@ void superblock::parse(std::ifstream & stream)
     revision = reader.u32(sb_revision_offset);
     first_ino = 11;
     inode_size = 128;
+    uuid = std::string("\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",16);
+    volume_name = "";
     bg_descriptor_size = 32;
 
     uint32_t const ld_block_size = reader.u32(sb_block_size_offset);
@@ -87,6 +93,8 @@ void superblock::parse(std::ifstream & stream)
         feature_compat = reader.u32(sb_feature_compat_offset);
         feature_incompat = reader.u32(sb_feature_incompat_offset);
         feature_ro_compat = reader.u32(sb_feature_ro_compat_offset);
+        uuid = reader.str(sb_uuid_offset, sb_uuid_size);
+        volume_name = reader.str(sb_volume_name_offset, sb_volume_name_size);
 
         if ((feature_incompat & sb_feature_64bit) != 0)
         {

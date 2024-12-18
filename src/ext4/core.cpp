@@ -35,6 +35,8 @@ void core::get_info(fsinfo & out)
     out.feature_incompatible = sb.feature_incompat;
     out.feature_ro_compatible = sb.feature_ro_compat;
     out.blockgroup_descriptor_size = sb.bg_descriptor_size;
+    out.uuid = sb.uuid;
+    out.volume_name = sb.volume_name;
 }
 
 bool core::lookup(uint32_t inode_id, inode & out)

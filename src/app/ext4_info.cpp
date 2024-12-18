@@ -128,6 +128,42 @@ void print_features(uint32_t features, known_feature const * feature_set)
     }
 }
 
+char hex_char(int value)
+{
+    static char const map[] = "0123456789abcdef";
+    return ((0 <= value) && (value <= 15)) ? map[value] : '?';
+}
+
+void print_hex(char c)
+{
+    int const low = c & 0xf;
+    int const high = (c >> 4) & 0xf;
+    std::cout << hex_char(high) << hex_char(low);
+}
+
+void print_uuid(std::string const & value)
+{
+    print_hex(value.at(0));
+    print_hex(value.at(1));
+    print_hex(value.at(2));
+    print_hex(value.at(3));
+    std::cout << '-';
+    print_hex(value.at(4));
+    print_hex(value.at(5));
+    std::cout << '-';
+    print_hex(value.at(6));
+    print_hex(value.at(7));
+    std::cout << '-';
+    print_hex(value.at(8));
+    print_hex(value.at(9));
+    print_hex(value.at(10));
+    print_hex(value.at(11));
+    print_hex(value.at(12));
+    print_hex(value.at(13));
+    print_hex(value.at(14));
+    print_hex(value.at(15));
+}
+
 }
 
 int main(int argc, char* argv[])
@@ -169,7 +205,8 @@ int main(int argc, char* argv[])
             std::cout << "ready-only compatible features: 0x" << std::hex << info.feature_ro_compatible << std::dec << std::endl;
             print_features(info.feature_ro_compatible, ro_compatible_features);
             std::cout << "blockgrounp descriptor size: " << info.blockgroup_descriptor_size << std::endl;
-
+            std::cout << "uuid: "; print_uuid(info.uuid); std::cout << std::endl;
+            std::cout << "volume name: " << info.volume_name << std::endl;
 
         }
         catch (std::exception const & ex)

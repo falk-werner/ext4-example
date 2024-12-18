@@ -3,7 +3,9 @@
 
 #include <cinttypes>
 #include <cstddef>
+
 #include <fstream>
+#include <string>
 
 namespace ext4
 {
@@ -32,6 +34,8 @@ struct superblock
     uint32_t feature_compat;
     uint32_t feature_incompat;
     uint32_t feature_ro_compat;
+    std::string uuid;
+    std::string volume_name;
 
     uint64_t gd_offset;
     uint16_t bg_descriptor_size;
